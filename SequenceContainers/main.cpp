@@ -37,7 +37,6 @@ int main()
 #ifdef FACTORIAL
 	int n;
 	cout << "n = "; cin >> n;
-	
 	try
 	{
 		cout << n << "! = " << Factorial(n);
