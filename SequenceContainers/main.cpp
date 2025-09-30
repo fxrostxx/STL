@@ -6,7 +6,10 @@ using std::endl;
 
 #define tab "\t"
 
-#define STL_ARRAY
+//#define STL_ARRAY
+#define FACTORIAL
+
+unsigned long long int Factorial(int n);
 
 int main()
 {
@@ -31,5 +34,27 @@ int main()
 	}*/
 #endif // STL_ARRAY
 
+#ifdef FACTORIAL
+	int n;
+	cout << "n = "; cin >> n;
+	
+	try
+	{
+		cout << n << "! = " << Factorial(n);
+	}
+	catch (const std::exception& e)
+	{
+		std::cerr << e.what() << endl;
+	}
+#endif // FACTORIAL
+
 	return 0;
+}
+
+unsigned long long int Factorial(int n)
+{
+	if (n < 0) throw std::invalid_argument("Фактоиал не определен для отрицательных чисел");
+	if (n > 65) throw std::invalid_argument("Арифметическое переполнение");
+	if (n == 0 || n == 1) return 1;
+	return (unsigned long long int)n * Factorial(n - 1);
 }
