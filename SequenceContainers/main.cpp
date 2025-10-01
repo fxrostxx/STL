@@ -39,7 +39,7 @@ int main()
 	cout << "n = "; cin >> n;
 	try
 	{
-		cout << n << "! = " << Factorial(n);
+		cout << n << "! = " << Factorial(n) << endl;
 	}
 	catch (const std::exception& e)
 	{
@@ -53,7 +53,7 @@ int main()
 unsigned long long int Factorial(int n)
 {
 	if (n < 0) throw std::invalid_argument("Фактоиал не определен для отрицательных чисел");
-	if (n > 65) throw std::invalid_argument("Арифметическое переполнение");
+	if (n > 20) throw std::invalid_argument("Арифметическое переполнение");
 	if (n == 0 || n == 1) return 1;
 	return (unsigned long long int)n * Factorial(n - 1);
 }
