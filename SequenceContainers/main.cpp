@@ -3,6 +3,8 @@
 #include <vector>
 #include <list>
 #include <forward_list>
+#include <deque>
+#include <iterator>
 using std::cin;
 using std::cout;
 using std::endl;
@@ -11,12 +13,14 @@ using std::endl;
 #define delimeter "\n----------------------------\n"
 
 template<typename T> void vector_info(const std::vector<T>& vec);
+template<typename T> void deque_info(const std::deque<T>& deq);
 
 //#define FACTORIAL
 //#define STL_ARRAY
-//#define STL_VECTOR
+#define STL_VECTOR
+#define STL_DEQUE
 //#define STL_LIST
-#define STL_FORWARD_LIST
+//#define STL_FORWARD_LIST
 
 #ifdef FACTORIAL
 unsigned long long int Factorial(int n)
@@ -95,6 +99,16 @@ int main()
 	for (int i : vec) cout << i << tab; cout << endl;
 #endif // STL_VECTOR
 
+#ifdef STL_DEQUE
+	std::deque<int> deq = { 1, 1, 2, 3, 5, 8, 13, 21, 34 };
+	deq.push_back(34);
+	deq.push_front(0);
+	deque_info(deq);
+	deq.assign(vec.begin() + 2, vec.end() - 2);
+	for (int i : deq) cout << i << tab; cout << endl;
+#endif // STL_DEQUE
+
+
 #ifdef STL_LIST
 	std::list<int> list1 = { 0, 1, 1, 2, 3, 5, 8, 13, 21, 34 };
 	for (int i : list1) cout << i << tab; cout << endl;
@@ -102,13 +116,15 @@ int main()
 	cout << "Введите индекс добавляемого элемента: "; cin >> index;
 	cout << "Введите значение добавляемого элемента: "; cin >> value;
 	std::list<int>::iterator it = list1.begin();
-	for (int i = 0; i < index; ++i) ++it;
+	//for (int i = 0; i < index; ++i) ++it;
+	std::advance(it, index);
 	list1.insert(it, value);
 	for (int i : list1) cout << i << tab; cout << endl;
 
 	cout << "Введите индекс удаляемого элемента: "; cin >> index;
 	it = list1.begin();
-	for (int i = 0; i < index; ++i) ++it;
+	//for (int i = 0; i < index; ++i) ++it;
+	std::advance(it, index);
 	list1.erase(it);
 	for (int i : list1) cout << i << tab; cout << endl;
 #endif // STL_LIST
@@ -120,13 +136,15 @@ int main()
 	cout << "Введите индекс добавляемого элемента: "; cin >> index;
 	cout << "Введите значение добавляемого элемента: "; cin >> value;
 	std::forward_list<int>::iterator it = list1.begin();
-	for (int i = 0; i < index - 1; ++i) ++it;
+	//for (int i = 0; i < index - 1; ++i) ++it;
+	std::advance(it, index - 1);
 	list1.insert_after(it, value);
 	for (int i : list1) cout << i << tab; cout << endl;
 
 	cout << "Введите индекс удаляемого элемента: "; cin >> index;
 	it = list1.begin();
-	for (int i = 0; i < index - 1; ++i) ++it;
+	//for (int i = 0; i < index - 1; ++i) ++it;
+	std::advance(it, index - 1);
 	list1.erase_after(it);
 	for (int i : list1) cout << i << tab; cout << endl;
 #endif // STL_FORWARD_LIST
@@ -139,5 +157,11 @@ template<typename T> void vector_info(const std::vector<T>& vec)
 	cout << "Size: " << vec.size() << endl;
 	cout << "MaxSize: " << vec.max_size() << endl;
 	cout << "Capacity: " << vec.capacity() << endl;
+	cout << delimeter << endl;
+}
+template<typename T> void deque_info(const std::deque<T>& deq)
+{
+	cout << "Size: " << deq.size() << endl;
+	cout << "MaxSize: " << deq.max_size() << endl;
 	cout << delimeter << endl;
 }
