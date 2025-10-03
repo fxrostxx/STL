@@ -101,7 +101,7 @@ int main()
 	int index, value;
 	cout << "Введите индекс добавляемого элемента: "; cin >> index;
 	cout << "Введите значение добавляемого элемента: "; cin >> value;
-	auto it = list1.begin();
+	std::list<int>::iterator it = list1.begin();
 	for (int i = 0; i < index; ++i) ++it;
 	list1.insert(it, value);
 	for (int i : list1) cout << i << tab; cout << endl;
@@ -119,7 +119,7 @@ int main()
 	int index, value;
 	cout << "Введите индекс добавляемого элемента: "; cin >> index;
 	cout << "Введите значение добавляемого элемента: "; cin >> value;
-	auto it = list1.begin();
+	std::forward_list<int>::iterator it = list1.begin();
 	for (int i = 0; i < index - 1; ++i) ++it;
 	list1.insert_after(it, value);
 	for (int i : list1) cout << i << tab; cout << endl;
