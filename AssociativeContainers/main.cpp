@@ -1,5 +1,6 @@
 ﻿#include <iostream>
 #include <map>
+#include <set>
 #include <list>
 using std::cin;
 using std::cout;
@@ -8,7 +9,8 @@ using std::endl;
 #define tab "\t"
 #define delimeter "\n------------------------\n"
 
-#define STL_MAP
+//#define STL_MAP
+#define STL_SET
 
 int main()
 {
@@ -48,14 +50,30 @@ int main()
 	};
 	for (std::map<std::string, std::list<std::string>>::iterator it = dictionary.begin(); it != dictionary.end(); ++it)
 	{
+		cout.width(15);
 		cout << it->first << " - ";
 		for (std::list<std::string>::iterator list_it = it->second.begin(); list_it != it->second.end(); ++list_it)
 		{
-			cout << *list_it << "; ";
+			cout << *list_it << (list_it == --it->second.end() ? "" : "; ");
 		}
 		cout << endl;
 	}
+
+	cout << delimeter << endl;
+
+	for (std::pair<std::string, std::list<std::string>> i : dictionary)
+	{
+		cout.width(15);
+		cout << i.first << " - ";
+		for (std::string word : i.second) cout << word << (word == *--i.second.end() ? "" : "; ");
+		cout << endl;
+	}
 #endif // STL_MAP
+
+#ifdef STL_SET
+	std::set<int> set = { 1024, 512, 2048, 128, 3072, 768 };
+	for (std::set<int>::iterator it = set.begin(); it != set.end(); ++it) cout << *it << tab; cout << endl;
+#endif // STL_SET
 
 	return 0;
 }

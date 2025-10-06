@@ -1,4 +1,5 @@
 ﻿#include <iostream>
+#include <fstream>
 #include <map>
 #include <list>
 #include <string>
@@ -6,49 +7,103 @@ using std::cin;
 using std::cout;
 using std::endl;
 
-class PoliceDatabase
+#define tab "\t"
+#define delimeter "\n----------------------------------\n"
+
+const std::map<int, std::string> VIOLATIONS =
+{
+	{0, "N/A"},
+	{1, "Парковка в неположенном месте"},
+	{2, "Непристегнутый ремень безопасности"},
+	{3, "Пересечение сплошной полосы"},
+	{4, "Превышение скорости"},
+	{5, "Проезд на красный свет светофора"},
+	{6, "Выезд на встречную полосу"},
+	{7, "Езда в нетрезвом виде"},
+	{8, "Оскорбление сотрудника полиции"}
+};
+
+class Crime
 {
 private:
-	std::map<std::string, std::list<std::string>> database;
-	std::string license_plate_number;
-	std::list<std::string> fines;
+	int violation;
+	std::string place;
 public:
-	PoliceDatabase()
+	int get_violation() const
 	{
-		cout << "PDDefaultConstructor: " << this << endl;
+		return violation;
 	}
-	PoliceDatabase(const PoliceDatabase& other)
+	const std::string& get_place() const
 	{
-		*this = other;
-		cout << "PDCopyConstructor: " << this << endl;
+		return place;
 	}
-	PoliceDatabase(const PoliceDatabase&& other)
+	void set_violation(int violation)
 	{
-		*this = std::move(other);
-		cout << "PDMoveConstructor: " << this << endl;
+		this->violation = violation;
 	}
-	PoliceDatabase(const std::initializer_list<std::string>& string_il, const std::initializer_list<std::list<std::string>>& list_il)
+	void set_place(const std::string& place)
 	{
-		for (std::string const* string_it = string_il.begin(); string_it != string_il.end(); ++string_it)
-		{
-			//database.insert((std::map<std::string, std::list<std::string>>::iterator)*string_it, );
-		}
+		this->place = place;
 	}
-	~PoliceDatabase()
+	Crime(int violation, const std::string& place)
 	{
-		database.clear();
-		license_plate_number.clear();
-		fines.clear();
-		cout << "PDDestructor: " << this << endl;
-	}
-
-	PoliceDatabase& operator=(const PoliceDatabase& other)
-	{
-		if (this == &other) return *this;
-		database.clear();
-		for (std::map<std::string, std::list<std::string>>::iterator* it = other.database.begin(); it != other.database.end(); ++it)
-		{
-
-		}
+		set_violation(violation);
+		set_place(place);
 	}
 };
+
+std::ostream& operator<<(std::ostream& os, const Crime& obj)
+{
+	os.width(44);
+	os << std::left;
+	return os << VIOLATIONS.at(obj.get_violation()) << " " << obj.get_place();
+}
+
+void print(const std::map<std::string, std::list<Crime>>& base);
+void save(const std::map<std::string, std::list<Crime>>& base, const std::string filename);
+
+int main()
+{
+	setlocale(LC_ALL, "");
+
+	std::map<std::string, std::list<Crime>> base =
+	{
+		{"А777АА", {Crime(4, "ул. Ленина"), Crime(5, "ул. Ленина"), Crime(7, "ул. Энтузисатов"), Crime(8, "ул. Энтузиастов")}},
+		{"А123ЕН", {Crime(2, "ул. Пролетарская"), Crime(3, "ул. Мира")}},
+		{"А001УТ", {Crime(5, "ул. Октябрьская"), Crime(7, "ул. Космическая")}}
+	};
+	print(base);
+	save(base, "base.txt");
+
+	return 0;
+}
+
+void print(const std::map<std::string, std::list<Crime>>& base)
+{
+	for (std::map<std::string, std::list<Crime>>::const_iterator plate = base.begin(); plate != base.end(); ++plate)
+	{
+		cout << plate->first << ":\n";
+		for (std::list<Crime>::const_iterator violation = plate->second.begin(); violation != plate->second.end(); ++violation)
+		{
+			cout << tab << *violation << endl;
+		}
+		cout << delimeter << endl;
+	}
+}
+void save(const std::map<std::string, std::list<Crime>>& base, const std::string filename)
+{
+	std::ofstream fout(filename);
+	for (std::map<std::string, std::list<Crime>>::const_iterator plate = base.begin(); plate != base.end(); ++plate)
+	{
+		fout << plate->first << ":\n";
+		for (std::list<Crime>::const_iterator violation = plate->second.begin(); violation != plate->second.end(); ++violation)
+		{
+			fout << tab << *violation << endl;
+		}
+		fout << delimeter << endl;
+	}
+	fout.close();
+	std::string cmd = "notepad ";
+	cmd += filename;
+	system(cmd.c_str());
+}
