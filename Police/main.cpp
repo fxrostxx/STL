@@ -3,6 +3,7 @@
 #include <map>
 #include <list>
 #include <string>
+#include <ctime>
 using std::cin;
 using std::cout;
 using std::endl;
@@ -28,6 +29,7 @@ class Crime
 private:
 	int violation;
 	std::string place;
+	tm time;
 public:
 	int get_violation() const
 	{
@@ -37,6 +39,10 @@ public:
 	{
 		return place;
 	}
+	const tm& get_time() const
+	{
+		return time;
+	}
 	void set_violation(int violation)
 	{
 		this->violation = violation;
@@ -45,22 +51,56 @@ public:
 	{
 		this->place = place;
 	}
-	Crime(int violation, const std::string& place)
+	void set_time(const tm& time)
+	{
+		this->time = time;
+	}
+	void set_time(const int day, const int month, const int year, const int hour, const int minute, const int second)
+	{
+		time = {};
+		time.tm_year = year;
+		time.tm_mon = (month > 12 ? 0 : month);
+		time.tm_mday = (day > 31 ? 0 : day);
+		time.tm_hour = (hour > 23 ? 0 : hour);
+		time.tm_min = (minute > 59 ? 0 : minute);
+		time.tm_sec = (second > 59 ? 0 : second);
+	}
+	Crime(int violation, const std::string& place, const int day, const int month, const int year, const int hour, const int minute, const int second)
 	{
 		set_violation(violation);
 		set_place(place);
+		set_time(day, month, year, hour, minute, second);
 	}
 };
 
+std::ostream& operator<<(std::ostream& os, const tm& obj)
+{
+	/*return os << std::string
+	(
+		(obj.tm_mday < 10 ? "0" : "") + std::to_string(obj.tm_mday) + "." +
+		(obj.tm_mon < 10 ? "0" : "") + std::to_string(obj.tm_mon) + "." +
+		std::to_string(obj.tm_year) + " " +
+		(obj.tm_hour < 10 ? "0" : "") + std::to_string(obj.tm_hour) + ":" +
+		(obj.tm_min < 10 ? "0" : "") + std::to_string(obj.tm_min) + ":" +
+		(obj.tm_sec < 10 ? "0" : "") + std::to_string(obj.tm_sec)
+	);*/
+	return os << (obj.tm_mday < 10 ? "0" : "") << obj.tm_mday << "." <<
+				 (obj.tm_mon < 10 ? "0" : "") << obj.tm_mon << "." <<
+				 obj.tm_year << " " <<
+				 (obj.tm_hour < 10 ? "0" : "") << obj.tm_hour << ":" <<
+				 (obj.tm_min < 10 ? "0" : "") << obj.tm_min << ":" <<
+				 (obj.tm_sec < 10 ? "0" : "") << obj.tm_sec;
+}
 std::ostream& operator<<(std::ostream& os, const Crime& obj)
 {
 	os.width(44);
 	os << std::left;
-	return os << VIOLATIONS.at(obj.get_violation()) << " " << obj.get_place();
+	return os << VIOLATIONS.at(obj.get_violation()) << " " << obj.get_place() << tab << obj.get_time();
 }
 
 void print(const std::map<std::string, std::list<Crime>>& base);
 void save(const std::map<std::string, std::list<Crime>>& base, const std::string filename);
+//std::map<std::string, std::list<Crime>> read(const std::map<std::string, std::list<std::string>>& base, const std::string filename);
 
 int main()
 {
@@ -68,9 +108,9 @@ int main()
 
 	std::map<std::string, std::list<Crime>> base =
 	{
-		{"А777АА", {Crime(4, "ул. Ленина"), Crime(5, "ул. Ленина"), Crime(7, "ул. Энтузисатов"), Crime(8, "ул. Энтузиастов")}},
-		{"А123ЕН", {Crime(2, "ул. Пролетарская"), Crime(3, "ул. Мира")}},
-		{"А001УТ", {Crime(5, "ул. Октябрьская"), Crime(7, "ул. Космическая")}}
+		{"А777АА", {Crime(4, "ул. Ленина", 7, 10, 2025, 12, 0, 5), Crime(5, "ул. Ленина", 7, 10, 2025, 13, 21, 32), Crime(7, "ул. Энтузисатов", 7, 10, 2025, 18, 9, 48), Crime(8, "ул. Энтузиастов", 7, 10, 2025, 23, 34, 12)}},
+		{"А123ЕН", {Crime(2, "ул. Пролетарская", 1, 10, 2025, 12, 0, 5), Crime(3, "ул. Мира", 1, 10, 2025, 13, 21, 32)}},
+		{"А001УТ", {Crime(5, "ул. Октябрьская", 2, 10, 2025, 12, 0, 5), Crime(7, "ул. Космическая", 2, 10, 2025, 13, 21, 32)}}
 	};
 	print(base);
 	save(base, "base.txt");
@@ -107,3 +147,12 @@ void save(const std::map<std::string, std::list<Crime>>& base, const std::string
 	cmd += filename;
 	system(cmd.c_str());
 }
+//std::map<std::string, std::list<Crime>> read(const std::map<std::string, std::list<std::string>>& base, const std::string filename)
+//{
+//	std::ifstream fin(filename);
+//	if (fin.is_open())
+//	{
+//
+//	}
+//	fin.close();
+//}
