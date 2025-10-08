@@ -3,6 +3,7 @@
 #include <map>
 #include <list>
 #include <string>
+#include <sstream>
 #include <ctime>
 using std::cin;
 using std::cout;
@@ -65,7 +66,7 @@ public:
 		time.tm_min = (minute > 59 ? 0 : minute);
 		time.tm_sec = (second > 59 ? 0 : second);
 	}
-	Crime(int violation, const std::string& place, const int day, const int month, const int year, const int hour, const int minute, const int second)
+	Crime(int violation, const std::string& place, const int day = 0, const int month = 0, const int year = 0, const int hour = 0, const int minute = 0, const int second = 0)
 	{
 		set_violation(violation);
 		set_place(place);
@@ -97,15 +98,33 @@ std::ostream& operator<<(std::ostream& os, const Crime& obj)
 	os << std::left;
 	return os << VIOLATIONS.at(obj.get_violation()) << " " << obj.get_place() << tab << obj.get_time();
 }
+std::ofstream& operator<<(std::ofstream& ofs, const Crime& obj)
+{
+	ofs << obj.get_violation() << " " << obj.get_place() << " " << obj.get_time();
+	return ofs;
+}
+std::stringstream& operator>>(std::stringstream& strstr, Crime& obj)
+{
+	int violation;
+	strstr >> violation;
+	std::string place;
+	std::getline(strstr, place);
+	obj.set_violation(violation);
+	obj.set_place(place);
+	return strstr;
+}
 
 void print(const std::map<std::string, std::list<Crime>>& base);
 void save(const std::map<std::string, std::list<Crime>>& base, const std::string filename);
-//std::map<std::string, std::list<Crime>> read(const std::map<std::string, std::list<std::string>>& base, const std::string filename);
+std::map<std::string, std::list<Crime>> load(const std::string filename);
+
+//#define INIT_BASE
 
 int main()
 {
 	setlocale(LC_ALL, "");
 
+#ifdef INIT_BASE
 	std::map<std::string, std::list<Crime>> base =
 	{
 		{"А777АА", {Crime(4, "ул. Ленина", 7, 10, 2025, 12, 0, 5), Crime(5, "ул. Ленина", 7, 10, 2025, 13, 21, 32), Crime(7, "ул. Энтузисатов", 7, 10, 2025, 18, 9, 48), Crime(8, "ул. Энтузиастов", 7, 10, 2025, 23, 34, 12)}},
@@ -114,6 +133,10 @@ int main()
 	};
 	print(base);
 	save(base, "base.txt");
+#endif // INIT_BASE
+
+	std::map<std::string, std::list<Crime>> base = load("base.txt");
+	print(base);
 
 	return 0;
 }
@@ -135,24 +158,44 @@ void save(const std::map<std::string, std::list<Crime>>& base, const std::string
 	std::ofstream fout(filename);
 	for (std::map<std::string, std::list<Crime>>::const_iterator plate = base.begin(); plate != base.end(); ++plate)
 	{
-		fout << plate->first << ":\n";
+		fout << plate->first << ":";
 		for (std::list<Crime>::const_iterator violation = plate->second.begin(); violation != plate->second.end(); ++violation)
 		{
-			fout << tab << *violation << endl;
+			fout << *violation << ",";
 		}
-		fout << delimeter << endl;
+		fout << endl;
 	}
 	fout.close();
 	std::string cmd = "notepad ";
 	cmd += filename;
 	system(cmd.c_str());
 }
-//std::map<std::string, std::list<Crime>> read(const std::map<std::string, std::list<std::string>>& base, const std::string filename)
-//{
-//	std::ifstream fin(filename);
-//	if (fin.is_open())
-//	{
-//
-//	}
-//	fin.close();
-//}
+std::map<std::string, std::list<Crime>> load(const std::string filename)
+{
+	std::map<std::string, std::list<Crime>> base;
+	std::ifstream fin(filename);
+	if (fin.is_open())
+	{
+		while (!fin.eof())
+		{
+			std::string license_plate;
+			std::getline(fin, license_plate, ':');
+			const int SIZE = 1024 * 512;
+			char all_crimes[SIZE];
+			fin.getline(all_crimes, SIZE);
+			cout << license_plate << tab;
+			cout << all_crimes << endl;
+			const char* delimeters = ",";
+			for (char* pch = strtok(all_crimes, delimeters); pch; pch = strtok(NULL, delimeters))
+			{
+				Crime crime(0, "");
+				std::stringstream stream(pch);
+				stream >> crime;
+				base[license_plate].push_back(crime);
+			}
+		}
+	}
+	else std::cerr << "Error: File not found" << endl;
+	fin.close();
+	return base;
+}
