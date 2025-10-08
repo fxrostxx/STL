@@ -25,6 +25,9 @@ const std::map<int, std::string> VIOLATIONS =
 	{8, "Оскорбление сотрудника полиции"}
 };
 
+class Crime;
+std::stringstream& operator>>(std::stringstream& strstr, Crime& obj);
+
 class Crime
 {
 private:
@@ -71,6 +74,11 @@ public:
 		set_violation(violation);
 		set_place(place);
 		set_time(day, month, year, hour, minute, second);
+	}
+	explicit Crime(const std::string& str)
+	{
+		std::stringstream stream(str);
+		stream >> *this;
 	}
 };
 
@@ -187,12 +195,7 @@ std::map<std::string, std::list<Crime>> load(const std::string filename)
 			cout << all_crimes << endl;
 			const char* delimeters = ",";
 			for (char* pch = strtok(all_crimes, delimeters); pch; pch = strtok(NULL, delimeters))
-			{
-				Crime crime(0, "");
-				std::stringstream stream(pch);
-				stream >> crime;
-				base[license_plate].push_back(crime);
-			}
+				base[license_plate].push_back(Crime(pch));
 		}
 	}
 	else std::cerr << "Error: File not found" << endl;
