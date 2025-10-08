@@ -43,9 +43,12 @@ public:
 	{
 		return place;
 	}
-	const tm& get_time() const
+	std::string get_time() const
 	{
-		return time;
+		char string_time[256]{};
+		strcpy(string_time, asctime(&time));
+		string_time[strlen(string_time) - 1] = NULL;
+		return string_time;
 	}
 	void set_violation(int violation)
 	{
@@ -55,25 +58,28 @@ public:
 	{
 		this->place = place;
 	}
-	void set_time(const tm& time)
+	void set_time(const std::string time)
 	{
-		this->time = time;
+		char string_time[256] = {};
+		strcpy(string_time, time.c_str());
+		// YYYY.MM.DD HH:MM
+		int parts[5] = {};
+		int n = 0;
+		const char* delimeters = ".,/-: ";
+		for (char* pch = strtok(string_time, delimeters); pch; pch = strtok(NULL, delimeters))
+			parts[n++] = std::atoi(pch);
+		this->time = {};
+		this->time.tm_year = parts[0] - 1900;
+		this->time.tm_mon = parts[1] - 1;
+		this->time.tm_mday = parts[2];
+		this->time.tm_hour = parts[3];
+		this->time.tm_min = parts[4];
 	}
-	void set_time(const int day, const int month, const int year, const int hour, const int minute, const int second)
-	{
-		time = {};
-		time.tm_year = year;
-		time.tm_mon = (month > 12 ? 0 : month);
-		time.tm_mday = (day > 31 ? 0 : day);
-		time.tm_hour = (hour > 23 ? 0 : hour);
-		time.tm_min = (minute > 59 ? 0 : minute);
-		time.tm_sec = (second > 59 ? 0 : second);
-	}
-	Crime(int violation, const std::string& place, const int day = 0, const int month = 0, const int year = 0, const int hour = 0, const int minute = 0, const int second = 0)
+	Crime(int violation, const std::string& place, const std::string& time)
 	{
 		set_violation(violation);
 		set_place(place);
-		set_time(day, month, year, hour, minute, second);
+		set_time(time);
 	}
 	explicit Crime(const std::string& str)
 	{
@@ -82,29 +88,11 @@ public:
 	}
 };
 
-std::ostream& operator<<(std::ostream& os, const tm& obj)
-{
-	/*return os << std::string
-	(
-		(obj.tm_mday < 10 ? "0" : "") + std::to_string(obj.tm_mday) + "." +
-		(obj.tm_mon < 10 ? "0" : "") + std::to_string(obj.tm_mon) + "." +
-		std::to_string(obj.tm_year) + " " +
-		(obj.tm_hour < 10 ? "0" : "") + std::to_string(obj.tm_hour) + ":" +
-		(obj.tm_min < 10 ? "0" : "") + std::to_string(obj.tm_min) + ":" +
-		(obj.tm_sec < 10 ? "0" : "") + std::to_string(obj.tm_sec)
-	);*/
-	return os << (obj.tm_mday < 10 ? "0" : "") << obj.tm_mday << "." <<
-				 (obj.tm_mon < 10 ? "0" : "") << obj.tm_mon << "." <<
-				 obj.tm_year << " " <<
-				 (obj.tm_hour < 10 ? "0" : "") << obj.tm_hour << ":" <<
-				 (obj.tm_min < 10 ? "0" : "") << obj.tm_min << ":" <<
-				 (obj.tm_sec < 10 ? "0" : "") << obj.tm_sec;
-}
 std::ostream& operator<<(std::ostream& os, const Crime& obj)
 {
 	os.width(44);
 	os << std::left;
-	return os << VIOLATIONS.at(obj.get_violation()) << " " << obj.get_place() << tab << obj.get_time();
+	return os << obj.get_time() << VIOLATIONS.at(obj.get_violation()) << " " << obj.get_place();
 }
 std::ofstream& operator<<(std::ofstream& ofs, const Crime& obj)
 {
@@ -127,6 +115,8 @@ void save(const std::map<std::string, std::list<Crime>>& base, const std::string
 std::map<std::string, std::list<Crime>> load(const std::string filename);
 
 //#define INIT_BASE
+#define INIT_BASE_2
+//#define LOAD_CHECK
 
 int main()
 {
@@ -143,8 +133,23 @@ int main()
 	save(base, "base.txt");
 #endif // INIT_BASE
 
+#ifdef INIT_BASE_2
+	std::map<std::string, std::list<Crime>> base =
+	{
+		{"А777АА", {Crime(4, "ул. Ленина", "2025.10.07 12:05"), Crime(5, "ул. Ленина", "2025.01.06 13:21"), Crime(7, "ул. Энтузисатов", "2025.10.07 22:05"), Crime(8, "ул. Энтузиастов", "2025.10.08 00:05")}},
+		{"А123ЕН", {Crime(2, "ул. Пролетарская", "2025.11.07 12:05"), Crime(3, "ул. Мира", "2025.10.06 14:55")}},
+		{"А001УТ", {Crime(5, "ул. Октябрьская", "2025.10.07 16:05"), Crime(7, "ул. Космическая", "2025.01.16 12:14")}}
+	};
+	print(base);
+	save(base, "base.txt");
+#endif // INIT_BASE
+
+#ifdef LOAD_CHECK
 	std::map<std::string, std::list<Crime>> base = load("base.txt");
 	print(base);
+#endif // LOAD_CHECK
+
+
 
 	return 0;
 }
