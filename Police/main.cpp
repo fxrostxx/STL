@@ -96,17 +96,20 @@ std::ostream& operator<<(std::ostream& os, const Crime& obj)
 }
 std::ofstream& operator<<(std::ofstream& ofs, const Crime& obj)
 {
-	ofs << obj.get_violation() << " " << obj.get_place() << " " << obj.get_time();
+	ofs << obj.get_time() << " " << obj.get_violation() << " " << obj.get_place();
 	return ofs;
 }
 std::stringstream& operator>>(std::stringstream& strstr, Crime& obj)
 {
+	std::string string_time;
+	strstr >> string_time;
 	int violation;
 	strstr >> violation;
 	std::string place;
 	std::getline(strstr, place);
 	obj.set_violation(violation);
 	obj.set_place(place);
+	obj.set_time(string_time);
 	return strstr;
 }
 
@@ -115,8 +118,8 @@ void save(const std::map<std::string, std::list<Crime>>& base, const std::string
 std::map<std::string, std::list<Crime>> load(const std::string filename);
 
 //#define INIT_BASE
-#define INIT_BASE_2
-//#define LOAD_CHECK
+//#define INIT_BASE_2
+#define LOAD_CHECK
 
 int main()
 {
@@ -148,8 +151,6 @@ int main()
 	std::map<std::string, std::list<Crime>> base = load("base.txt");
 	print(base);
 #endif // LOAD_CHECK
-
-
 
 	return 0;
 }
